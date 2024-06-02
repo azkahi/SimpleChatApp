@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
+import { useParams  } from "react-router-dom";
 import queryString from 'query-string';
-import io from "socket.io-client";
+import { io } from "socket.io-client";
 
 import TextContainer from '../TextContainer/TextContainer';
 import Messages from '../Messages/Messages';
@@ -9,43 +10,41 @@ import Input from '../Input/Input';
 
 import './Chat.css';
 
-const ENDPOINT = 'https://project-chat-application.herokuapp.com/';
+const socket = io();
 
-let socket;
+interface ChatProps {}
 
-const Chat = ({ location }) => {
-  const [name, setName] = useState('');
-  const [room, setRoom] = useState('');
-  const [users, setUsers] = useState('');
-  const [message, setMessage] = useState('');
-  const [messages, setMessages] = useState([]);
+const Chat: React.FC<ChatProps> = ({ }) => {
+  const [name, setName] = useState<string>('');
+  const [room, setRoom] = useState<string>('');
+  const [users, setUsers] = useState<string[]>([]);
+  const [message, setMessage] = useState<string>('');
+  const [messages, setMessages] = useState<string[]>([]);
 
   useEffect(() => {
-    const { name, room } = queryString.parse(location.search);
+    const { name } = useParams();
 
-    socket = io(ENDPOINT);
+    setRoom(room as string);
+    setName(name as string)
 
-    setRoom(room);
-    setName(name)
-
-    socket.emit('join', { name, room }, (error) => {
+    socket.emit('join', { name, room }, (error: string) => {
       if(error) {
         alert(error);
       }
     });
-  }, [ENDPOINT, location.search]);
+  }, [location.search]);
   
   useEffect(() => {
-    socket.on('message', message => {
+    socket.on('message', (message: string) => {
       setMessages(messages => [ ...messages, message ]);
     });
     
-    socket.on("roomData", ({ users }) => {
+    socket.on("roomData", ({ users }: { users: string[] }) => {
       setUsers(users);
     });
-}, []);
+  }, []);
 
-  const sendMessage = (event) => {
+  const sendMessage = (event: React.FormEvent) => {
     event.preventDefault();
 
     if(message) {
@@ -60,7 +59,7 @@ const Chat = ({ location }) => {
           <Messages messages={messages} name={name} />
           <Input message={message} setMessage={setMessage} sendMessage={sendMessage} />
       </div>
-      <TextContainer users={users}/>
+      <TextContainer users={users.map((user) => ( { name: user } ))}/>
     </div>
   );
 }

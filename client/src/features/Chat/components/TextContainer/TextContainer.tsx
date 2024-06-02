@@ -1,10 +1,18 @@
-import React from 'react';
+import React, { FC } from 'react';
 
 import onlineIcon from '../../icons/onlineIcon.png';
 
 import './TextContainer.css';
 
-const TextContainer = ({ users }) => (
+interface User {
+  name: string;
+}
+
+interface TextContainerProps {
+  users: User[];
+}
+
+const TextContainer: FC<TextContainerProps> = ({ users }) => (
   <div className="textContainer">
     <div>
       <h1>Realtime Chat Application <span role="img" aria-label="emoji">💬</span></h1>
@@ -18,12 +26,12 @@ const TextContainer = ({ users }) => (
             <h1>People currently chatting:</h1>
             <div className="activeContainer">
               <h2>
-                {users.map(({name}) => (
+                {users.map(({name}) => 
                   <div key={name} className="activeItem">
                     {name}
                     <img alt="Online Icon" src={onlineIcon}/>
                   </div>
-                ))}
+                )}
               </h2>
             </div>
           </div>
