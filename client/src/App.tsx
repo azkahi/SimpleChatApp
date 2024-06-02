@@ -1,8 +1,8 @@
 import React from 'react';
 import { Routes, Route } from "react-router-dom";
 
-import Chat from './components/Chat/Chat';
-import Join from './components/Join/Join';
+import Chat from './features/Chat/Chat';
+import Join from './features/Join/Join';
 
 const App: React.FC = () => {
   return (
