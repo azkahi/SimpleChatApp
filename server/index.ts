@@ -3,9 +3,9 @@ import express from 'express';
 import { Server } from 'socket.io';
 import cors from 'cors';
 
-import { addUser, removeUser, getUser, getUsersInRoom } from './users';
+import { addUser, removeUser, getUser, getUsersInRoom } from './src/users';
 
-import router from './router';
+import router from './src/router';
 
 const app: express.Application = express();
 const httpServer = createServer(app);
