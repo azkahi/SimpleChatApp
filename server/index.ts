@@ -1,24 +1,26 @@
-const http = require('http');
-const express = require('express');
-const socketio = require('socket.io');
-const cors = require('cors');
+import { createServer } from 'http';
+import express from 'express';
+import { Server } from 'socket.io';
+import cors from 'cors';
 
-const { addUser, removeUser, getUser, getUsersInRoom } = require('./users');
+import { addUser, removeUser, getUser, getUsersInRoom } from './src/users';
 
-const router = require('./router');
+import router from './src/router';
 
-const app = express();
-const server = http.createServer(app);
-const io = socketio(server);
+const app: express.Application = express();
+const httpServer = createServer(app);
+const io = new Server(httpServer);
 
 app.use(cors());
 app.use(router);
 
 io.on('connect', (socket) => {
-  socket.on('join', ({ name, room }, callback) => {
+  socket.on('join', ({ name, room }: { name: string, room: string }, callback: Function) => {
     const { error, user } = addUser({ id: socket.id, name, room });
 
     if(error) return callback(error);
+
+    if(!user) return callback(error);
 
     socket.join(user.room);
 
@@ -30,8 +32,10 @@ io.on('connect', (socket) => {
     callback();
   });
 
-  socket.on('sendMessage', (message, callback) => {
+  socket.on('sendMessage', (message: string, callback: Function) => {
     const user = getUser(socket.id);
+
+    if(!user) return callback("An error has occured. No user is found.");
 
     io.to(user.room).emit('message', { user: user.name, text: message });
 
@@ -48,4 +52,4 @@ io.on('connect', (socket) => {
   })
 });
 
-server.listen(process.env.PORT || 5000, () => console.log(`Server has started.`));
+httpServer.listen(process.env.PORT || 5000, () => console.log(`Server has started.`));
