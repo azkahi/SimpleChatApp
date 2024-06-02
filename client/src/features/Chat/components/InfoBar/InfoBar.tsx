@@ -1,11 +1,15 @@
-import React from 'react';
+import React, { FC } from 'react';
 
 import onlineIcon from '../../icons/onlineIcon.png';
 import closeIcon from '../../icons/closeIcon.png';
 
 import './InfoBar.css';
 
-const InfoBar = ({ room }) => (
+interface InfoBarProps {
+  room: string;
+}
+
+const InfoBar: FC<InfoBarProps> = ({ room }) => (
   <div className="infoBar">
     <div className="leftInnerContainer">
       <img className="onlineIcon" src={onlineIcon} alt="online icon" />
