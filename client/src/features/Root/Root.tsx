@@ -1,34 +1,35 @@
-import React, { useState, ChangeEvent } from 'react';
-import { Link } from "react-router-dom";
+import React, { useEffect } from "react";
 
-import './Join.css';
+import { useCookies } from 'react-cookie';
+import { Outlet, useNavigate } from "react-router-dom";
+
+import RootCookies from "../components/IRootCookies";
 
 const Root = () => {
-  const [name, setName] = useState<string>('');
-  const [room, setRoom] = useState<string>('defaultRoom');
+  const [cookies, setCookie] = useCookies(['token']);
 
-  const handleNameChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setName(event.target.value);
-  };
+  const navigate = useNavigate();
 
-  const handleSignIn = (event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
-    if (!name || !room) {
-      event.preventDefault();
+  useEffect(() => {
+    const token = cookies as RootCookies;
+
+    console.log(token);
+    if (!token.token) {
+      console.log("No token found in cookies");
+      navigate('/join');
+    } else {
+      console.log("Token found in cookies");
+      navigate('/chat');
     }
-  };
+  }, [cookies]);
+
 
   return (
-    <div className="joinOuterContainer">
-      <div className="joinInnerContainer">
-        <h1 className="heading">Join</h1>
-        <div>
-          <input placeholder="Name" className="joinInput" type="text" onChange={handleNameChange} />
-        </div>
-        <Link onClick={(e) => handleSignIn(e)} to={`/chat?name=${name}`}>
-          <button className={'button mt-20'} type="submit">Sign In</button>
-        </Link>
+    <>
+      <div>
+        <Outlet />
       </div>
-    </div>
+    </>
   );
 }
 

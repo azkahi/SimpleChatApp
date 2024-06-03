@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { useParams  } from "react-router-dom";
+
+import { useCookies } from "react-cookie";
+
 import queryString from 'query-string';
 import { io } from "socket.io-client";
 
-import TextContainer from '../TextContainer/TextContainer';
-import Messages from '../Messages/Messages';
-import InfoBar from '../InfoBar/InfoBar';
-import Input from '../Input/Input';
+import RootCookies from "../components/IRootCookies";
+import TextContainer from './components/TextContainer/TextContainer';
+import Messages from './components/Messages/Messages';
+import InfoBar from './components/InfoBar/InfoBar';
+import Input from './components/Input/Input';
 
 import './Chat.css';
 
@@ -15,24 +18,20 @@ const socket = io();
 interface ChatProps {}
 
 const Chat: React.FC<ChatProps> = ({ }) => {
-  const [name, setName] = useState<string>('');
-  const [room, setRoom] = useState<string>('');
+  const name = "Test";
+
+  const [cookies, _] = useCookies(['token']);
   const [users, setUsers] = useState<string[]>([]);
   const [message, setMessage] = useState<string>('');
   const [messages, setMessages] = useState<string[]>([]);
 
   useEffect(() => {
-    const { name } = useParams();
-
-    setRoom(room as string);
-    setName(name as string)
-
-    socket.emit('join', { name, room }, (error: string) => {
+    socket.emit('join', { name }, (error: string) => {
       if(error) {
         alert(error);
       }
     });
-  }, [location.search]);
+  }, []);
   
   useEffect(() => {
     socket.on('message', (message: string) => {
@@ -55,8 +54,8 @@ const Chat: React.FC<ChatProps> = ({ }) => {
   return (
     <div className="outerContainer">
       <div className="container">
-          <InfoBar room={room} />
-          <Messages messages={messages} name={name} />
+          <InfoBar room={"Main Room"} />
+          <Messages messages={messages} name={name ?? ""} />
           <Input message={message} setMessage={setMessage} sendMessage={sendMessage} />
       </div>
       <TextContainer users={users.map((user) => ( { name: user } ))}/>
