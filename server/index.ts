@@ -1,43 +1,58 @@
+import 'dotenv/config'
+
 import { createServer } from 'http';
-import express from 'express';
+import express, { query } from 'express';
 import { Server } from 'socket.io';
 import cors from 'cors';
 
-import { addUser, removeUser, getUser, getUsersInRoom } from './src/users';
-
+import AuthGoogle from './src/auth';
 import router from './src/router';
+import { addUser, removeUser, getUser, getUsersInRoom } from './src/users';
+import { randomUUID } from 'crypto';
 
 const app: express.Application = express();
-const httpServer = createServer(app);
-const io = new Server(httpServer);
 
-app.use(cors());
+app.use(cors({ origin: process.env.CLIENT_URL || "http://localhost:3000" }));
 app.use(router);
 
+const httpServer = createServer(app);
+const io = new Server(httpServer, {
+  cors: {
+    origin: process.env.CLIENT_URL || "http://localhost:3000",
+  },
+  cookie: true
+});
+
+const PORT: number = parseInt(process.env.PORT ?? "5000");
+
+io.use((socket, next) => {
+  const { error } = AuthGoogle(socket.handshake.auth.token ?? "", socket.handshake.headers.authorization ?? "");
+
+  if (error) next(new Error(error));
+
+  next();
+});
+
 io.on('connect', (socket) => {
-  socket.on('join', ({ name, room }: { name: string, room: string }, callback: Function) => {
-    const { error, user } = addUser({ id: socket.id, name, room });
+  socket.on('join', ({ name, token }: { name: string, token: string }, callback: Function) => {
+    const { error, user } = addUser({ id: randomUUID(), name, token });
 
-    if(error) return callback(error);
+    if (error) return callback(error);
 
-    if(!user) return callback(error);
+    if (!user) return callback(error);
 
-    socket.join(user.room);
+    socket.broadcast.emit('message', { user: 'admin', text: `${user.name} has joined!` });
 
-    socket.emit('message', { user: 'admin', text: `${user.name}, welcome to room ${user.room}.`});
-    socket.broadcast.to(user.room).emit('message', { user: 'admin', text: `${user.name} has joined!` });
-
-    io.to(user.room).emit('roomData', { room: user.room, users: getUsersInRoom(user.room) });
+    socket.broadcast.emit('roomData', { users: getUsersInRoom() });
 
     callback();
   });
 
-  socket.on('sendMessage', (message: string, callback: Function) => {
-    const user = getUser(socket.id);
+  socket.on('sendMessage', ({ message, token }: { message: string, token: string }, callback: Function) => {
+    const user = getUser(token);
+    if (!user) return callback("An error has occured. Not authenticated.");
 
-    if(!user) return callback("An error has occured. No user is found.");
-
-    io.to(user.room).emit('message', { user: user.name, text: message });
+    socket.broadcast.emit('message', { user: user.name, text: message });
 
     callback();
   });
@@ -45,11 +60,11 @@ io.on('connect', (socket) => {
   socket.on('disconnect', () => {
     const user = removeUser(socket.id);
 
-    if(user) {
-      io.to(user.room).emit('message', { user: 'Admin', text: `${user.name} has left.` });
-      io.to(user.room).emit('roomData', { room: user.room, users: getUsersInRoom(user.room)});
+    if (user) {
+      socket.broadcast.emit('message', { user: 'admin', text: `${user.name} has left.` });
+      socket.broadcast.emit('roomData', { users: getUsersInRoom() });
     }
   })
 });
 
-httpServer.listen(process.env.PORT || 5000, () => console.log(`Server has started.`));
+io.listen(PORT);
