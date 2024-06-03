@@ -4,12 +4,8 @@ import onlineIcon from '../../../../icons/onlineIcon.png';
 
 import './TextContainer.css';
 
-interface User {
-  name: string;
-}
-
 interface TextContainerProps {
-  users: User[];
+  users: string[];
 }
 
 const TextContainer: FC<TextContainerProps> = ({ users }) => (
@@ -26,7 +22,7 @@ const TextContainer: FC<TextContainerProps> = ({ users }) => (
             <h1>People currently chatting:</h1>
             <div className="activeContainer">
               <h2>
-                {users.map(({name}) => 
+                {users.map((name) => 
                   <div key={name} className="activeItem">
                     {name}
                     <img alt="Online Icon" src={onlineIcon}/>

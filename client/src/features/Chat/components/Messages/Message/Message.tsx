@@ -11,7 +11,7 @@ interface MessageProps {
 const Message: FC<MessageProps> = ({ message: { text, user }, name }) => {
   let isSentByCurrentUser: boolean = false;
 
-  const trimmedName: string = name.trim().toLowerCase();
+  const trimmedName: string = name;
 
   if (user === trimmedName) {
     isSentByCurrentUser = true;

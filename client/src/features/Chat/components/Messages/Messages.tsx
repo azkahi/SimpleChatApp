@@ -3,7 +3,7 @@ import Message from './Message/Message';
 import './Messages.css';
 
 interface MessagesProps {
-  messages: string[];
+  messages: {user: string, text: string}[];
   name: string;
 }
 
@@ -13,7 +13,7 @@ const Messages: FC<MessagesProps> = ({ messages, name }) => {
 
   return(
     <div className="messages">
-      {messages.map((message, i) => <div key={i}><Message message={{text:message, user:name}} name={name}/></div>)}
+      {messages.map((message, i) => <div key={i}><Message message={{text:message.text, user:message.user}} name={name}/></div>)}
       <div ref={messagesEndRef} />
     </div>
   );

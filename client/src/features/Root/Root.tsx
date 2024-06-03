@@ -13,12 +13,9 @@ const Root = () => {
   useEffect(() => {
     const token = cookies as RootCookies;
 
-    console.log(token);
     if (!token.token) {
-      console.log("No token found in cookies");
       navigate('/join');
     } else {
-      console.log("Token found in cookies");
       navigate('/chat');
     }
   }, [cookies]);

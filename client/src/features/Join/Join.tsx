@@ -3,6 +3,7 @@ import React, { FC, useState, ChangeEvent, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import { GoogleLogin } from '@react-oauth/google';
 import { useCookies } from 'react-cookie';
+import { io } from "socket.io-client";
 
 import RootCookies from "../components/IRootCookies";
 import GoogleOAuth from "./IGoogleOAuth";
@@ -26,6 +27,15 @@ const SignIn: FC<SignInProps> = () => {
     if (!name) {
       event.preventDefault();
     } else {
+      const socket = io(process.env.REACT_APP_BASE_URL ?? "http://localhost:5000", {
+        extraHeaders: {
+          "Authorization": OAuthToken
+        },
+        auth: {
+          token: OAuthToken
+        }
+      });
+
       setCookie('token', OAuthToken);
       navigate('/chat');
     }
@@ -37,7 +47,7 @@ const SignIn: FC<SignInProps> = () => {
   };
 
   const errorMessage = () => {
-    console.log("An error has occured.");
+    alert("An error has occured.");
   };
 
   return (
