@@ -1,34 +1,69 @@
-import React, { FC, useState, ChangeEvent } from 'react';
-import { Link } from "react-router-dom";
+import React, { FC, useState, ChangeEvent, useEffect } from 'react';
+
+import { useNavigate } from "react-router-dom";
+import { GoogleLogin } from '@react-oauth/google';
+import { useCookies } from 'react-cookie';
+import { io } from "socket.io-client";
+
+import RootCookies from "../components/IRootCookies";
+import GoogleOAuth from "./IGoogleOAuth";
 
 import './Join.css';
 
-interface SignInProps {}
+interface SignInProps { }
 
 const SignIn: FC<SignInProps> = () => {
   const [name, setName] = useState<string>('');
-  const [room, setRoom] = useState<string>('defaultRoom');
+  const [_, setCookie] = useCookies(['token']);
+  const [OAuthToken, setOAuthToken] = useState<string>('');
+
+  const navigate = useNavigate();
 
   const handleNameChange = (event: ChangeEvent<HTMLInputElement>) => {
     setName(event.target.value);
   };
 
-  const handleSignIn = (event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
-    if (!name || !room) {
+  const handleSignIn = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    if (!name) {
       event.preventDefault();
+    } else {
+      const socket = io(process.env.REACT_APP_BASE_URL ?? "http://localhost:5000", {
+        extraHeaders: {
+          "Authorization": OAuthToken
+        },
+        auth: {
+          token: OAuthToken
+        }
+      });
+
+      setCookie('token', OAuthToken);
+      navigate('/chat');
     }
+  };
+
+  const responseMessage = (response: any) => {
+    const OAuthResp = response as GoogleOAuth;
+    setOAuthToken(OAuthResp.credential);
+  };
+
+  const errorMessage = () => {
+    alert("An error has occured.");
   };
 
   return (
     <div className="joinOuterContainer">
       <div className="joinInnerContainer">
-        <h1 className="heading">Join</h1>
-        <div>
-          <input placeholder="Name" className="joinInput" type="text" onChange={handleNameChange} />
-        </div>
-        <Link onClick={(e) => handleSignIn(e)} to={`/chat?name=${name}`}>
-          <button className={'button mt-20'} type="submit">Sign In</button>
-        </Link>
+        {OAuthToken ?
+          <>
+            <h1 className="heading">Join</h1>
+            <div>
+              <input placeholder="Name" className="joinInput" type="text" onChange={handleNameChange} />
+            </div>
+            <button onClick={(e) => handleSignIn(e)} className={'button mt-20'} type="submit">Sign In</button>
+          </>
+          :
+          <GoogleLogin onSuccess={responseMessage} onError={errorMessage} />
+        }
       </div>
     </div>
   );
