@@ -1,4 +1,6 @@
 import React, { FC } from 'react';
+import { randomUUID } from 'crypto';
+
 import Message from './Message/Message';
 import './Messages.css';
 
@@ -13,7 +15,7 @@ const Messages: FC<MessagesProps> = ({ messages, name }) => {
 
   return(
     <div className="messages">
-      {messages.map((message, i) => <div key={i}><Message message={{text:message.text, user:message.user}} name={name}/></div>)}
+      {messages.map((message) => <div key={randomUUID()}><Message message={{text:message.text, user:message.user}} name={name}/></div>)}
       <div ref={messagesEndRef} />
     </div>
   );

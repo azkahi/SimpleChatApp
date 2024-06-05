@@ -2,10 +2,8 @@ import React, { useState, useEffect } from "react";
 
 import { useCookies } from "react-cookie";
 
-import queryString from 'query-string';
 import { io } from "socket.io-client";
 
-import RootCookies from "../components/IRootCookies";
 import TextContainer from './components/TextContainer/TextContainer';
 import Messages from './components/Messages/Messages';
 import InfoBar from './components/InfoBar/InfoBar';
@@ -15,7 +13,7 @@ import './Chat.css';
 
 interface ChatProps {}
 
-const Chat: React.FC<ChatProps> = ({ }) => {
+const Chat: React.FC<ChatProps> = () => {
   const name = "Test";
 
   const [cookies, _] = useCookies(['token']);

@@ -6,7 +6,7 @@ import { Outlet, useNavigate } from "react-router-dom";
 import RootCookies from "../components/IRootCookies";
 
 const Root = () => {
-  const [cookies, setCookie] = useCookies(['token']);
+  const [cookies] = useCookies(['token']);
 
   const navigate = useNavigate();
 
@@ -22,11 +22,9 @@ const Root = () => {
 
 
   return (
-    <>
-      <div>
-        <Outlet />
-      </div>
-    </>
+    <div>
+      <Outlet />
+    </div>
   );
 }
 

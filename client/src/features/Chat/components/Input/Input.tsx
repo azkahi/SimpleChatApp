@@ -1,4 +1,4 @@
-import React, { FC, ChangeEvent, KeyboardEvent, MouseEventHandler } from 'react';
+import React, { FC, ChangeEvent } from 'react';
 
 import './Input.css';
 
