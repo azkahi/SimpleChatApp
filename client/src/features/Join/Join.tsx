@@ -1,11 +1,9 @@
-import React, { FC, useState, ChangeEvent, useEffect } from 'react';
+import React, { FC, useState, ChangeEvent } from 'react';
 
 import { useNavigate } from "react-router-dom";
 import { GoogleLogin } from '@react-oauth/google';
 import { useCookies } from 'react-cookie';
-import { io } from "socket.io-client";
 
-import RootCookies from "../components/IRootCookies";
 import GoogleOAuth from "./IGoogleOAuth";
 
 import './Join.css';
@@ -15,7 +13,7 @@ interface SignInProps { }
 const SignIn: FC<SignInProps> = () => {
   const [name, setName] = useState<string>('');
   const [_, setCookie] = useCookies(['token']);
-  const [OAuthToken, setOAuthToken] = useState<string>('');
+  const [token, setToken] = useState<string>('');
 
   const navigate = useNavigate();
 
@@ -27,23 +25,14 @@ const SignIn: FC<SignInProps> = () => {
     if (!name) {
       event.preventDefault();
     } else {
-      const socket = io(process.env.REACT_APP_BASE_URL ?? "http://localhost:5000", {
-        extraHeaders: {
-          "Authorization": OAuthToken
-        },
-        auth: {
-          token: OAuthToken
-        }
-      });
-
-      setCookie('token', OAuthToken);
+      setCookie('token', token);
       navigate('/chat');
     }
   };
 
   const responseMessage = (response: any) => {
     const OAuthResp = response as GoogleOAuth;
-    setOAuthToken(OAuthResp.credential);
+    setToken(OAuthResp.credential);
   };
 
   const errorMessage = () => {
@@ -53,7 +42,7 @@ const SignIn: FC<SignInProps> = () => {
   return (
     <div className="joinOuterContainer">
       <div className="joinInnerContainer">
-        {OAuthToken ?
+        {token ?
           <>
             <h1 className="heading">Join</h1>
             <div>
