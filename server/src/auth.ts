@@ -1,5 +1,4 @@
 import { OAuth2Client } from "google-auth-library";
-import { ParsedUrlQuery } from "querystring";
 
 const client = new OAuth2Client();
 
@@ -19,7 +18,7 @@ const Auth = (auth_token: string, header_token: string) => {
 const ValidateToken = (auth_token: string, header_token: string) => {
     if (!auth_token) return { error: 'Token is required.' };
     if (!header_token) return { error: 'Token is required.' };
-    if (auth_token !== auth_token) return { error: 'Token is invalid.' };
+    if (auth_token !== header_token) return { error: 'Token is invalid.' };
     return { error: null };
 };
 
@@ -30,9 +29,8 @@ const VerifyOAuthGoogle = async (token: string) => {
     });
 
     const payload = ticket.getPayload();
-    if (!payload) return { error: 'Not Authenticated.' };
-    const userid = payload['sub'];
-
+    if (!payload.sub) return { error: 'Not Authenticated.' };
+    
     return { error: null };
 };  
 

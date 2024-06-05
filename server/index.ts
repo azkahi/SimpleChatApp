@@ -1,7 +1,7 @@
 import 'dotenv/config'
 
 import { createServer } from 'http';
-import express, { query } from 'express';
+import express from 'express';
 import { Server } from 'socket.io';
 import cors from 'cors';
 
@@ -12,13 +12,13 @@ import { randomUUID } from 'crypto';
 
 const app: express.Application = express();
 
-app.use(cors({ origin: process.env.CLIENT_URL || "http://localhost:3000" }));
+app.use(cors({ origin: process.env.CLIENT_URL ?? "http://localhost:3000" }));
 app.use(router);
 
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: process.env.CLIENT_URL || "http://localhost:3000",
+    origin: process.env.CLIENT_URL ?? "http://localhost:3000",
   },
   cookie: true
 });

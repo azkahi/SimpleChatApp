@@ -1,9 +1,6 @@
 const users: { id: string, name: string, token: string }[] = [];
 
 const addUser = ({ id, name, token }: { id: string, name: string, token: string }): { error?: string, user?: { id: string, name: string, token: string } } => {
-  name = name;
-  token = token;
-
   const existingUser = users.find((user) => user.name === name);
 
   if (name === 'admin') return { error: 'Username is reserved.' };
